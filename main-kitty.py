@@ -1,9 +1,11 @@
 from lib.util.input import input_handler
 from lib.util.plots import connect_and_plot
 import asyncio
+import os
 
 
 async def main():
+    os.system('cls' if os.name == 'nt' else 'clear')
     while True:
         try:
             await asyncio.gather(
