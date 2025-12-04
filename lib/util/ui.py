@@ -4,10 +4,11 @@ import io
 import sys
 
 
-def draw_candlesticks(ax, candles_list):
+def draw_candlesticks(ax, candles_list, offset=0):
     width = 0.6 
     
     for i, candle in enumerate(candles_list):
+        x = i + offset
         open_price = candle['open']
         close_price = candle['close']
         high_price = candle['high']
@@ -24,17 +25,16 @@ def draw_candlesticks(ax, candles_list):
             body_bottom = close_price
             body_height = open_price - close_price
         
-        ax.plot([i, i], [low_price, high_price], color=color, linewidth=1)
+        ax.plot([x, x], [low_price, high_price], color=color, linewidth=1)
         
         if body_height == 0:
             body_height = 0.01
-        rect = Rectangle((i - width / 2, body_bottom), width, body_height,
+        rect = Rectangle((x - width / 2, body_bottom), width, body_height,
                          facecolor=color, edgecolor=color, linewidth=1)
         ax.add_patch(rect)
 
 
 def display_in_kitty(fig):
-    """Display matplotlib figure in kitty terminal using kitty graphics protocol"""
     buf = io.BytesIO()
     fig.savefig(buf, format='png', dpi=100, bbox_inches='tight', facecolor='#1a1a2e')
     buf.seek(0)

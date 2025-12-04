@@ -19,7 +19,7 @@ CHART_HEIGHT = 6
 current_mode = 'chart'
 terminal = blessed.Terminal()
 
-candles = deque(maxlen=MAX_CANDLES)
+candles = deque([None] * MAX_CANDLES, maxlen=MAX_CANDLES)
 candle_dict = {}
 
 WS_URL = f"wss://stream.binance.com:9443/ws/{SYMBOL}@kline_{INTERVAL}"
@@ -76,8 +76,8 @@ async def connect_and_plot():
                     ax.clear()
                     ax.set_facecolor('#16213e')
                     
-                    candles_list = list(candles)
-                    draw_candlesticks(ax, candles_list)
+                    candles_list = [c for c in candles if c is not None]
+                    draw_candlesticks(ax, candles_list, offset=MAX_CANDLES - len(candles_list))
                     
                     current_price = candles_list[-1]['close']
                     price_change = current_price - candles_list[-1]['open']
@@ -92,7 +92,7 @@ async def connect_and_plot():
                     ax.set_xlabel('Candles', color='white')
                     ax.set_ylabel('Price (USD)', color='white')
                     
-                    ax.set_xlim(-1, len(candles_list))
+                    ax.set_xlim(-1, MAX_CANDLES)
                     
                     all_highs = [c['high'] for c in candles_list]
                     all_lows = [c['low'] for c in candles_list]
