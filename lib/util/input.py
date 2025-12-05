@@ -1,22 +1,21 @@
 import blessed
 import asyncio
 import sys
-
-terminal = blessed.Terminal()
+from lib.util.config import config
 
 original_message = "F1 > Chart View; F2 > Symbol Selection; F3 > Interval Selection; F4 > Settings"
 current_message = original_message
 
 
 async def input_handler():
-    global current_mode, SYMBOL, INTERVAL, current_message
+    global current_mode, INTERVAL, current_message
     
     # todo: improve controls
     
-    with terminal.cbreak():
+    with config.terminal.cbreak():
         while True:
-            if terminal.kbhit(timeout=0.1):
-                key = terminal.inkey(timeout=0)
+            if config.terminal.kbhit(timeout=0.1):
+                key = config.terminal.inkey(timeout=0)
                 
                 if key.is_sequence:
                     if key.name == 'KEY_F1':
@@ -43,6 +42,7 @@ async def input_handler():
                     idx = int(key) - 1
                     if idx < len(symbols):
                         SYMBOL = symbols[idx]
+                        config.SYMBOL = SYMBOL
                         current_message = (f"[Symbol changed to: {SYMBOL.upper()}]")
                         current_mode = 'chart'
                 
@@ -53,5 +53,5 @@ async def input_handler():
                         INTERVAL = intervals[idx]
                         current_message = (f"[Interval changed to: {INTERVAL}]")
                         current_mode = 'chart'
-            print(f"{current_message}{terminal.clear_eol}", end="\r")
+            print(f"{current_message}{config.terminal.clear_eol}", end="\r")
             await asyncio.sleep(0.05)

@@ -1,43 +1,28 @@
 import matplotlib
 from lib.util.ui import draw_candlesticks, display_in_kitty
 from matplotlib.ticker import FuncFormatter
+from lib.util.config import config
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import json
 import websockets
-from collections import deque
 from datetime import datetime
-import blessed
 
-SYMBOL = "btcusdt"
-INTERVAL = "1s"  # 1s, 1m, 3m, 5m, 15m, 30m, 1h, 4h, 1d, etc.
-MAX_CANDLES = 60
-UPDATE_EVERY = 1
-CHART_WIDTH = 14
-CHART_HEIGHT = 6
-
-current_mode = 'chart'
-terminal = blessed.Terminal()
-
-candles = deque([None] * MAX_CANDLES, maxlen=MAX_CANDLES)
-candle_dict = {}
-
-WS_URL = f"wss://stream.binance.com:9443/ws/{SYMBOL}@kline_{INTERVAL}"
+WS_URL = f"wss://stream.binance.com:9443/ws/{config.SYMBOL}@kline_{config.INTERVAL}"
 
 update_count = 0
 
 
 async def connect_and_plot():
-    global update_count, candle_dict
-    
+    global update_count
     # todo: add customization
     
-    fig, ax = plt.subplots(figsize=(CHART_WIDTH, CHART_HEIGHT))
+    fig, ax = plt.subplots(figsize=(config.CHART_WIDTH, config.CHART_HEIGHT))
     fig.patch.set_facecolor('#1a1a2e')
     ax.set_facecolor('#16213e')
     
     async with websockets.connect(WS_URL) as ws:
-        print(f"Connected to Binance WebSocket for {SYMBOL.upper()} @ {INTERVAL}")
+        print(f"Connected to Binance WebSocket for {config.SYMBOL.upper()} @ {config.INTERVAL}")
         
         while True:
             try:
@@ -56,28 +41,28 @@ async def connect_and_plot():
                     'is_closed': kline['x']
                 }
                 
-                if open_time in candle_dict:
-                    idx = candle_dict[open_time]
-                    candles[idx] = candle_data
+                if open_time in config.candle_dict:
+                    idx = config.candle_dict[open_time]
+                    config.candles[idx] = candle_data
                 else:
-                    candles.append(candle_data)
-                    candle_dict[open_time] = len(candles) - 1
+                    config.candles.append(candle_data)
+                    config.candle_dict[open_time] = len(config.candles) - 1
                     
-                    if len(candle_dict) > MAX_CANDLES * 2:
-                        candle_dict = {k: i for i, (k, _) in enumerate(
-                            sorted(candle_dict.items())[-MAX_CANDLES:]
+                    if len(config.candle_dict) > config.MAX_CANDLES * 2:
+                        config.candle_dict = {k: i for i, (k, _) in enumerate(
+                            sorted(config.candle_dict.items())[-config.MAX_CANDLES:]
                         )}
                 
                 update_count += 1
                 
-                if len(candles) >= 2 and update_count >= UPDATE_EVERY:
+                if len(config.candles) >= 2 and update_count >= config.UPDATE_EVERY:
                     update_count = 0
                     
                     ax.clear()
                     ax.set_facecolor('#16213e')
                     
-                    candles_list = [c for c in candles if c is not None]
-                    draw_candlesticks(ax, candles_list, offset=MAX_CANDLES - len(candles_list))
+                    candles_list = [c for c in config.candles if c is not None]
+                    draw_candlesticks(ax, candles_list, offset=config.MAX_CANDLES - len(candles_list))
                     
                     current_price = candles_list[-1]['close']
                     price_change = current_price - candles_list[-1]['open']
@@ -85,14 +70,14 @@ async def connect_and_plot():
                     change_symbol = '+' if price_change >= 0 else ''
                     
                     ax.set_title(
-                        f'{SYMBOL.upper()} ({INTERVAL}) - ${current_price:,.2f} '
+                        f'{config.SYMBOL.upper()} ({config.INTERVAL}) - ${current_price:,.2f} '
                         f'({change_symbol}{price_change:,.2f} / {change_symbol}{change_pct:.2f}%)',
                         fontsize=14, color='white'
                     )
                     ax.set_xlabel('Candles', color='white')
                     ax.set_ylabel('Price (USD)', color='white')
                     
-                    ax.set_xlim(-1, MAX_CANDLES)
+                    ax.set_xlim(-1, config.MAX_CANDLES)
                     
                     all_highs = [c['high'] for c in candles_list]
                     all_lows = [c['low'] for c in candles_list]
