@@ -45,13 +45,17 @@ async def input_handler():
                         config.SYMBOL = SYMBOL
                         current_message = (f"[Symbol changed to: {SYMBOL.upper()}]")
                         current_mode = 'chart'
+                        config.refresh_plot = True
                 
                 elif current_mode == 'interval' and key in '123456789':
                     intervals = ['1s', '1m', '5m', '15m', '30m', '1h', '4h', '1d', '1w']
                     idx = int(key) - 1
                     if idx < len(intervals):
                         INTERVAL = intervals[idx]
+                        config.INTERVAL = INTERVAL
                         current_message = (f"[Interval changed to: {INTERVAL}]")
                         current_mode = 'chart'
-            print(f"{current_message}{config.terminal.clear_eol}", end="\r")
+                        config.refresh_plot = True
+            clear_eol = getattr(config.terminal, 'clear_eol', '')
+            print(f"{current_message}{clear_eol}", end="\r")
             await asyncio.sleep(0.05)

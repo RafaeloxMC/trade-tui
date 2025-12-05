@@ -8,7 +8,7 @@ import json
 import websockets
 from datetime import datetime
 
-WS_URL = f"wss://stream.binance.com:9443/ws/{config.SYMBOL}@kline_{config.INTERVAL}"
+WS_URL = ""
 
 update_count = 0
 
@@ -20,10 +20,12 @@ async def connect_and_plot():
     fig.set_facecolor(config.CHART_BG)
     ax.set_facecolor(config.CHART_FG)
     
+    WS_URL = f"wss://stream.binance.com:9443/ws/{config.SYMBOL}@kline_{config.INTERVAL}"
+    
     async with websockets.connect(WS_URL) as ws:
-        print(f"Connected to Binance WebSocket for {config.SYMBOL.upper()} @ {config.INTERVAL}")
+        print(f"Connected to Binance WebSocket for {config.SYMBOL.upper()} @ {config.INTERVAL}: " + WS_URL)
         
-        while True:
+        while not config.refresh_plot:
             try:
                 msg = await ws.recv()
                 data = json.loads(msg)
@@ -110,3 +112,5 @@ async def connect_and_plot():
                 continue
     
     plt.close(fig)
+    config.refresh_plot = False
+    await connect_and_plot()
