@@ -9,6 +9,8 @@ class config:
     UPDATE_EVERY = 1
     CHART_WIDTH = 14
     CHART_HEIGHT = 6
+    CHART_BG = "#1a1a2e"
+    CHART_FG = "#16213e"
 
     current_mode = 'chart'
     terminal = blessed.Terminal()

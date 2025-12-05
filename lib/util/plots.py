@@ -15,11 +15,10 @@ update_count = 0
 
 async def connect_and_plot():
     global update_count
-    # todo: add customization
     
     fig, ax = plt.subplots(figsize=(config.CHART_WIDTH, config.CHART_HEIGHT))
-    fig.patch.set_facecolor('#1a1a2e')
-    ax.set_facecolor('#16213e')
+    fig.set_facecolor(config.CHART_BG)
+    ax.set_facecolor(config.CHART_FG)
     
     async with websockets.connect(WS_URL) as ws:
         print(f"Connected to Binance WebSocket for {config.SYMBOL.upper()} @ {config.INTERVAL}")
@@ -59,7 +58,7 @@ async def connect_and_plot():
                     update_count = 0
                     
                     ax.clear()
-                    ax.set_facecolor('#16213e')
+                    ax.set_facecolor(config.CHART_FG)
                     
                     candles_list = [c for c in config.candles if c is not None]
                     draw_candlesticks(ax, candles_list, offset=config.MAX_CANDLES - len(candles_list))
