@@ -2,6 +2,7 @@ from matplotlib.patches import Rectangle
 import base64
 import io
 import sys
+from lib.util.config import config
 
 
 def draw_candlesticks(ax, candles_list, offset=0):
@@ -14,14 +15,12 @@ def draw_candlesticks(ax, candles_list, offset=0):
         high_price = candle['high']
         low_price = candle['low']
         
-        # todo: add customizable colors
-        
         if close_price >= open_price:
-            color = '#00ff88'
+            color = config.CANDLE_GAIN_COLOR
             body_bottom = open_price
             body_height = close_price - open_price
         else:
-            color = '#ff4444'
+            color = config.CANDLE_FALL_COLOR
             body_bottom = close_price
             body_height = open_price - close_price
         

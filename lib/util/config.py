@@ -11,6 +11,8 @@ class config:
     CHART_HEIGHT = 6
     CHART_BG = "#1a1a2e"
     CHART_FG = "#16213e"
+    CANDLE_GAIN_COLOR = "#00ff88"
+    CANDLE_FALL_COLOR = "#ff4444"
 
     current_mode = 'chart'
     terminal = blessed.Terminal()
