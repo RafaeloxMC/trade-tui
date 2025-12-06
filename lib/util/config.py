@@ -1,6 +1,9 @@
 from collections import deque
 import blessed
 from colorama import Fore
+from typing import Optional
+from lib.util.types import CandleData
+
 
 class config:
     SYMBOL = str("btcusdt")
@@ -19,7 +22,7 @@ class config:
     current_mode = 'chart'
     terminal = blessed.Terminal()
 
-    candles = deque([None] * MAX_CANDLES, maxlen=MAX_CANDLES)
+    candles: list[Optional[CandleData]] = [None] * MAX_CANDLES
     candle_dict = {}
-    
+
     refresh_plot = False

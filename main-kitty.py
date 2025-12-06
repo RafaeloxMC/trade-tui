@@ -1,8 +1,6 @@
-from lib.util.input import input_handler
-from lib.util.plots import connect_and_plot
+from lib.menus.main_menu import main_menu
 import asyncio
 import os
-from lib.util.main_menu import main_menu
 
 
 async def main():
@@ -12,4 +10,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-

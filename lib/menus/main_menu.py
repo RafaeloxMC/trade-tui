@@ -1,6 +1,6 @@
 import asyncio
-from lib.util.plots import connect_and_plot
-from lib.util.orderbook import connect_orderbook, display_orderbook
+from lib.menus.plots import connect_and_plot
+from lib.menus.orderbook import connect_orderbook, display_orderbook
 from lib.util.input import input_handler
 import sys
 from lib.util.config import config

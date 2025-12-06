@@ -1,13 +1,14 @@
+from datetime import datetime
+import asyncio
+import websockets
+import json
+import matplotlib.pyplot as plt
 import matplotlib
 from lib.util.ui import draw_candlesticks, display_in_kitty
 from matplotlib.ticker import FuncFormatter
 from lib.util.config import config
+from lib.util.types import CandleData
 matplotlib.use('agg')
-import matplotlib.pyplot as plt
-import json
-import websockets
-import asyncio
-from datetime import datetime
 
 WS_URL = ""
 
@@ -16,24 +17,25 @@ update_count = 0
 
 async def connect_and_plot():
     global update_count
-    
+
     fig, ax = plt.subplots(figsize=(config.CHART_WIDTH, config.CHART_HEIGHT))
     fig.set_facecolor(config.CHART_BG)
     ax.set_facecolor(config.CHART_FG)
-    
+
     WS_URL = f"wss://stream.binance.com:9443/ws/{config.SYMBOL}@kline_{config.INTERVAL}"
-    
+
     async with websockets.connect(WS_URL) as ws:
-        print(f"Connected to Binance WebSocket for {config.SYMBOL.upper()} @ {config.INTERVAL}: " + WS_URL)
-        
+        print(
+            f"Connected to Binance WebSocket for {config.SYMBOL.upper()} @ {config.INTERVAL}: " + WS_URL)
+
         while (not config.refresh_plot) and config.current_mode == "chart":
             try:
                 msg = await asyncio.wait_for(ws.recv(), timeout=0.1)
                 data = json.loads(msg)
-                
+
                 kline = data['k']
                 open_time = kline['t']
-                candle_data = {
+                candle_data: CandleData = {
                     'time': datetime.fromtimestamp(open_time / 1000),
                     'open': float(kline['o']),
                     'high': float(kline['h']),
@@ -42,35 +44,41 @@ async def connect_and_plot():
                     'volume': float(kline['v']),
                     'is_closed': kline['x']
                 }
-                
+
                 if open_time in config.candle_dict:
                     idx = config.candle_dict[open_time]
                     config.candles[idx] = candle_data
                 else:
                     config.candles.append(candle_data)
                     config.candle_dict[open_time] = len(config.candles) - 1
-                    
-                    if len(config.candle_dict) > config.MAX_CANDLES * 2:
-                        config.candle_dict = {k: i for i, (k, _) in enumerate(
-                            sorted(config.candle_dict.items())[-config.MAX_CANDLES:]
-                        )}
-                
+
+                    if len(config.candles) > config.MAX_CANDLES:
+                        config.candles = config.candles[-config.MAX_CANDLES:]
+                        config.candle_dict = {
+                            k: i for i, (k, _) in enumerate(
+                                sorted(config.candle_dict.items()
+                                       )[-config.MAX_CANDLES:]
+                            )
+                        }
+
                 update_count += 1
-                
+
                 if len(config.candles) >= 2 and update_count >= config.UPDATE_EVERY:
                     update_count = 0
-                    
+
                     ax.clear()
                     ax.set_facecolor(config.CHART_FG)
-                    
+
                     candles_list = [c for c in config.candles if c is not None]
-                    draw_candlesticks(ax, candles_list, offset=config.MAX_CANDLES - len(candles_list))
-                    
+                    draw_candlesticks(
+                        ax, candles_list, offset=config.MAX_CANDLES - len(candles_list))
+
                     current_price = candles_list[-1]['close']
                     price_change = current_price - candles_list[-1]['open']
-                    change_pct = (price_change / candles_list[-1]['open']) * 100
+                    change_pct = (
+                        price_change / candles_list[-1]['open']) * 100
                     change_symbol = '+' if price_change >= 0 else ''
-                    
+
                     ax.set_title(
                         f'{config.SYMBOL.upper()} ({config.INTERVAL}) - ${current_price:,.2f} '
                         f'({change_symbol}{price_change:,.2f} / {change_symbol}{change_pct:.2f}%)',
@@ -78,9 +86,9 @@ async def connect_and_plot():
                     )
                     ax.set_xlabel('Candles', color='white')
                     ax.set_ylabel('Price (USD)', color='white')
-                    
+
                     ax.set_xlim(-1, config.MAX_CANDLES)
-                    
+
                     all_highs = [c['high'] for c in candles_list]
                     all_lows = [c['low'] for c in candles_list]
                     min_price = min(all_lows)
@@ -88,19 +96,20 @@ async def connect_and_plot():
                     price_range = max_price - min_price
                     padding = max(price_range * 0.1, 10)
                     ax.set_ylim(min_price - padding, max_price + padding)
-                    
-                    ax.yaxis.set_major_formatter(FuncFormatter(lambda x, p: f'${x:,.0f}'))
-                    
+
+                    ax.yaxis.set_major_formatter(
+                        FuncFormatter(lambda x, p: f'${x:,.0f}'))
+
                     ax.tick_params(colors='white')
                     ax.spines['bottom'].set_color('white')
                     ax.spines['top'].set_color('white')
                     ax.spines['left'].set_color('white')
                     ax.spines['right'].set_color('white')
                     ax.grid(True, alpha=0.3, color='gray')
-                    
+
                     fig.tight_layout()
                     display_in_kitty(fig)
-                    
+
             except asyncio.TimeoutError:
                 continue
             except websockets.ConnectionClosed:
@@ -113,7 +122,7 @@ async def connect_and_plot():
             except Exception as e:
                 print(f"Error: {e}")
                 continue
-    
+
     plt.close(fig)
     if config.refresh_plot:
         config.refresh_plot = False
