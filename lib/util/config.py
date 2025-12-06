@@ -9,10 +9,10 @@ class config:
     UPDATE_EVERY = 1
     CHART_WIDTH = 14
     CHART_HEIGHT = 6
-    CHART_BG = "#1a1a2e"
-    CHART_FG = "#16213e"
-    CANDLE_GAIN_COLOR = "#00ff88"
-    CANDLE_FALL_COLOR = "#ff4444"
+    CHART_BG = str("#1a1a2e")
+    CHART_FG = str("#16213e")
+    CANDLE_GAIN_COLOR = str("#00ff88")
+    CANDLE_FALL_COLOR = str("#ff4444")
     TEXT_GAIN_COLOR = Fore.GREEN
     TEXT_FALL_COLOR = Fore.RED
 

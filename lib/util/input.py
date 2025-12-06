@@ -8,12 +8,12 @@ current_message = original_message
 
 async def input_handler():
     global current_mode, INTERVAL, current_message
-    
+    current_message = original_message
     with config.terminal.cbreak():
         while config.current_mode in ("chart", "symbol", "interval", "orderbook"):
             if config.terminal.kbhit(timeout=0.1):
                 key = config.terminal.inkey(timeout=0)
-                
+
                 if key == 'q':
                     current_message = ("Quitting...")
                     print(current_message)
