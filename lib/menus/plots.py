@@ -8,7 +8,15 @@ from lib.util.ui import draw_candlesticks, display_in_kitty
 from matplotlib.ticker import FuncFormatter
 from lib.util.config import config
 from lib.util.types import CandleData
-matplotlib.use('agg')
+import os
+
+TERM = os.environ.get('TERM', '')
+IS_KITTY = "kitty" in TERM
+
+if IS_KITTY:
+    matplotlib.use('module://matplotlib-backend-kitty')
+else:
+    import matplotlib_terminal
 
 WS_URL = ""
 
@@ -107,8 +115,12 @@ async def connect_and_plot():
                     ax.spines['right'].set_color('white')
                     ax.grid(True, alpha=0.3, color='gray')
 
+                    fig.canvas.draw()
                     fig.tight_layout()
-                    display_in_kitty(fig)
+                    if IS_KITTY:
+                        display_in_kitty(fig)
+                    else:
+                        plt.show()
 
             except asyncio.TimeoutError:
                 continue

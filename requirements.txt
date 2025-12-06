@@ -1,4 +1,6 @@
 matplotlib==3.5.3
+matplotlib-terminal
+img2unicode[n2]
 blessed
 matplotlib-backend-kitty
 websockets
