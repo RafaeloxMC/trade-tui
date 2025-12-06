@@ -1,3 +1,6 @@
 matplotlib==3.5.3
 blessed
 matplotlib-backend-kitty
+websockets
+aiohttp
+colorama

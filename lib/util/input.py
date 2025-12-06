@@ -12,7 +12,7 @@ async def input_handler():
     # todo: improve controls
     
     with config.terminal.cbreak():
-        while config.current_mode in ("chart", "symbol", "interval"):
+        while config.current_mode in ("chart", "symbol", "interval", "orderbook"):
             if config.terminal.kbhit(timeout=0.1):
                 key = config.terminal.inkey(timeout=0)
                 
