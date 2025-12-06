@@ -6,6 +6,7 @@ matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import json
 import websockets
+import asyncio
 from datetime import datetime
 
 WS_URL = ""
@@ -25,9 +26,9 @@ async def connect_and_plot():
     async with websockets.connect(WS_URL) as ws:
         print(f"Connected to Binance WebSocket for {config.SYMBOL.upper()} @ {config.INTERVAL}: " + WS_URL)
         
-        while not config.refresh_plot:
+        while (not config.refresh_plot) and config.current_mode == "chart":
             try:
-                msg = await ws.recv()
+                msg = await asyncio.wait_for(ws.recv(), timeout=0.1)
                 data = json.loads(msg)
                 
                 kline = data['k']
@@ -100,6 +101,8 @@ async def connect_and_plot():
                     fig.tight_layout()
                     display_in_kitty(fig)
                     
+            except asyncio.TimeoutError:
+                continue
             except websockets.ConnectionClosed:
                 print("Connection closed, reconnecting...")
                 break
@@ -112,5 +115,6 @@ async def connect_and_plot():
                 continue
     
     plt.close(fig)
-    config.refresh_plot = False
-    await connect_and_plot()
+    if config.refresh_plot:
+        config.refresh_plot = False
+        await connect_and_plot()

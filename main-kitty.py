@@ -2,20 +2,12 @@ from lib.util.input import input_handler
 from lib.util.plots import connect_and_plot
 import asyncio
 import os
+from lib.util.main_menu import main_menu
 
 
 async def main():
     os.system('cls' if os.name == 'nt' else 'clear')
-    while True:
-        try:
-            await asyncio.gather(
-                connect_and_plot(),
-                input_handler(),
-                return_exceptions=True
-            )
-        except Exception as e:
-            print(f"Connection error: {e}")
-            await asyncio.sleep(5)
+    await main_menu()
 
 
 if __name__ == "__main__":
