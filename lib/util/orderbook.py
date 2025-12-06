@@ -260,7 +260,7 @@ async def display_orderbook():
                     bid_bar = "=" * bar_len
                     bid_text = f"[{bid_bar}{float(bid_price):,.1f}]"
                     padding = COL_WIDTH - len(bid_text)
-                    bid_cell = " " * padding + f"[{Fore.GREEN}{bid_bar}{float(bid_price):,.1f}{Fore.RESET}]"
+                    bid_cell = " " * padding + f"[{config.TEXT_GAIN_COLOR}{bid_bar}{float(bid_price):,.1f}{Fore.RESET}]"
                 else:
                     bid_cell = " " * COL_WIDTH
                 
@@ -271,7 +271,7 @@ async def display_orderbook():
                     ask_bar = "=" * bar_len
                     ask_text = f"[{float(ask_price):,.1f}{ask_bar}]"
                     padding = COL_WIDTH - len(ask_text)
-                    ask_cell = f"[{Fore.RED}{float(ask_price):,.1f}{ask_bar}{Fore.RESET}]" + " " * padding
+                    ask_cell = f"[{config.TEXT_FALL_COLOR}{float(ask_price):,.1f}{ask_bar}{Fore.RESET}]" + " " * padding
                 else:
                     ask_cell = " " * COL_WIDTH
                 

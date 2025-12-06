@@ -1,6 +1,6 @@
 from collections import deque
 import blessed
-
+from colorama import Fore
 
 class config:
     SYMBOL = str("btcusdt")
@@ -13,6 +13,8 @@ class config:
     CHART_FG = "#16213e"
     CANDLE_GAIN_COLOR = "#00ff88"
     CANDLE_FALL_COLOR = "#ff4444"
+    TEXT_GAIN_COLOR = Fore.GREEN
+    TEXT_FALL_COLOR = Fore.RED
 
     current_mode = 'chart'
     terminal = blessed.Terminal()

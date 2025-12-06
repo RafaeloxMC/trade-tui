@@ -4,6 +4,7 @@ from lib.util.orderbook import connect_orderbook, display_orderbook
 from lib.util.input import input_handler
 import sys
 from lib.util.config import config
+from lib.menus.settings import open_settings
 
 
 async def main_menu():
@@ -12,6 +13,7 @@ async def main_menu():
         print("Select mode:")
         print("1. Chart mode")
         print("2. Order Book mode")
+        print("98. Settings")
         print("99. Exit")
         mode = input("Select mode: ")
         
@@ -21,6 +23,8 @@ async def main_menu():
         elif mode == "2":
             print("Switching to order book mode!")
             await show_orderbook()
+        elif mode == "98":
+            open_settings()
         elif mode == "99":
             sys.exit(0)
         else:
@@ -48,7 +52,7 @@ async def show_orderbook():
             await asyncio.gather(
                 connect_orderbook(),
                 display_orderbook(),
-                # input_handler(),
+                input_handler(),
                 return_exceptions=True
             )
         except Exception as e:
