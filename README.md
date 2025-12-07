@@ -4,6 +4,10 @@ Trade-TUI is a terminal-based user interface for trading with cryptocurrency. It
 
 **NOTE:** This project is highly optimized for the Kitty Terminal. Some features may not work properly in other terminals.
 
+## Showcase
+
+You can find a showcase [here](https://www.youtube.com/watch?v=VoPK-puSV04)! (the music is just for the memes)
+
 ## Features
 
 Trade-TUI features:
