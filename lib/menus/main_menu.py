@@ -20,7 +20,7 @@ async def main_menu():
         print("2. Order Book mode")
         print("98. Settings")
         print("99. Exit")
-        mode = input("Select mode: ")
+        mode = input("[num] > ")
         mode = mode.strip()
 
         if mode == "1":
