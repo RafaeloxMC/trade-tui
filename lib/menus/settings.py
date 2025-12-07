@@ -82,4 +82,5 @@ def open_settings():
                     print("Invalid color")
 
         elif setting == "99":
+            config.save_to_file()
             break

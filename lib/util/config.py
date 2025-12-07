@@ -3,6 +3,8 @@ import blessed
 from colorama import Fore
 from typing import Optional
 from lib.util.types import CandleData
+import json
+import os
 
 
 class config:
@@ -26,3 +28,40 @@ class config:
     candle_dict = {}
 
     refresh_plot = False
+
+    CONFIG_FILE = "config.json"
+
+    @classmethod
+    def save_to_file(cls):
+        data = {
+            "SYMBOL": cls.SYMBOL,
+            "INTERVAL": cls.INTERVAL,
+            "MAX_CANDLES": cls.MAX_CANDLES,
+            "UPDATE_EVERY": cls.UPDATE_EVERY,
+            "CHART_WIDTH": cls.CHART_WIDTH,
+            "CHART_HEIGHT": cls.CHART_HEIGHT,
+            "CHART_BG": cls.CHART_BG,
+            "CHART_FG": cls.CHART_FG,
+            "CANDLE_GAIN_COLOR": cls.CANDLE_GAIN_COLOR,
+            "CANDLE_FALL_COLOR": cls.CANDLE_FALL_COLOR,
+        }
+        with open(cls.CONFIG_FILE, 'w') as f:
+            json.dump(data, f, indent=4)
+
+    @classmethod
+    def load_from_file(cls):
+        if os.path.exists(cls.CONFIG_FILE):
+            with open(cls.CONFIG_FILE, 'r') as f:
+                data = json.load(f)
+                cls.SYMBOL = data.get("SYMBOL", cls.SYMBOL)
+                cls.INTERVAL = data.get("INTERVAL", cls.INTERVAL)
+                cls.MAX_CANDLES = data.get("MAX_CANDLES", cls.MAX_CANDLES)
+                cls.UPDATE_EVERY = data.get("UPDATE_EVERY", cls.UPDATE_EVERY)
+                cls.CHART_WIDTH = data.get("CHART_WIDTH", cls.CHART_WIDTH)
+                cls.CHART_HEIGHT = data.get("CHART_HEIGHT", cls.CHART_HEIGHT)
+                cls.CHART_BG = data.get("CHART_BG", cls.CHART_BG)
+                cls.CHART_FG = data.get("CHART_FG", cls.CHART_FG)
+                cls.CANDLE_GAIN_COLOR = data.get(
+                    "CANDLE_GAIN_COLOR", cls.CANDLE_GAIN_COLOR)
+                cls.CANDLE_FALL_COLOR = data.get(
+                    "CANDLE_FALL_COLOR", cls.CANDLE_FALL_COLOR)
