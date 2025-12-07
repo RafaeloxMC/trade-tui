@@ -4,6 +4,10 @@ from lib.util.colors import fore_from_name
 from lib.util.clear import clear
 from lib.util.banner import print_banner
 from colorama import Fore
+import threading
+import os
+import platform
+import subprocess
 
 
 def open_settings():
@@ -21,7 +25,8 @@ def open_settings():
         print(f"12. CHART COLORS ({config.CHART_BG} / {config.CHART_FG})")
         print(
             f"13. TEXT COLORS GAIN / FALL ({config.TEXT_GAIN_COLOR}+$100{Fore.RESET} / {config.TEXT_FALL_COLOR}-$100{Fore.RESET})")
-        print("----------------------- BACK -----------------------")
+        print("----------------------- MISC -----------------------")
+        print("98. Export")
         print("99. Back")
 
         setting = input("[num] > ")
@@ -81,6 +86,43 @@ def open_settings():
                 else:
                     print("Invalid color")
 
+        elif setting == "98":
+            threading.Thread(
+                target=open_in_file_manager,
+                args=(config.CONFIG_FILE,),
+                daemon=True
+            ).start()
+
         elif setting == "99":
             config.save_to_file()
             break
+
+
+def open_in_file_manager(path):
+    path = os.path.abspath(path)
+
+    system = platform.system()
+
+    if system == "Windows":
+        subprocess.Popen(["explorer", "/select,", path])
+        return
+
+    path = os.path.dirname(path)
+
+    if system == "Darwin":
+        subprocess.Popen(
+            ["open", "-R", path],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+    else:
+        try:
+            subprocess.Popen(
+                ["xdg-open", path],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+            return
+        except FileNotFoundError:
+            pass
