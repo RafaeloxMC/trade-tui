@@ -10,7 +10,7 @@ from lib.util.config import config
 from lib.util.types import CandleData
 from lib.util.backfill import fetch_historical_candles
 from lib.util.input import set_current_message
-from lib.util.indicators import calculate_rsi
+from lib.util.indicators import calculate_rsi, calculate_ema
 from colorama import Fore
 import os
 
@@ -80,7 +80,7 @@ async def connect_and_plot():
                     rsi_string = Fore.RESET
                 rsi_string += str(int(rsi * 100) / 100.0) + Fore.RESET
                 set_current_message(
-                    f"Q -> Main Menu | RSI -> {rsi_string} | {config.TEXT_GAIN_COLOR}Connected{Fore.RESET} | {config.SYMBOL.upper()} @ {config.INTERVAL} | {WS_URL}")
+                    f"Q -> Main Menu | RSI -> {rsi_string} | EMA -> {int(calculate_ema(config.candles, 20) * 100) / 100} | {config.TEXT_GAIN_COLOR}Connected{Fore.RESET} | {config.SYMBOL.upper()} @ {config.INTERVAL} | {WS_URL}")
 
             except asyncio.TimeoutError:
                 continue

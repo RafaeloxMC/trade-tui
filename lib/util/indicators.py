@@ -16,3 +16,14 @@ def calculate_rsi(candles: list, period: int = 14) -> float:
 
     rs = avg_gain / avg_loss
     return 100 - (100 / (1 + rs))
+
+
+def calculate_ema(candles: list, period: int = 20) -> float:
+    if len(candles) < period:
+        return 0.0
+    closes = [c['close'] for c in candles if c is not None]
+    multiplier = 2 / (period + 1)
+    ema = closes[0]
+    for price in closes[1:]:
+        ema = (price * multiplier) + (ema * (1 - multiplier))
+    return ema
