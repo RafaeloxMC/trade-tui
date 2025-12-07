@@ -1,12 +1,16 @@
 from lib.util.config import config
 from lib.util.hex import validate_hex
 from lib.util.colors import fore_from_name
+from lib.util.clear import clear
+from lib.util.banner import print_banner
 from colorama import Fore
 
 
 def open_settings():
     while True:
-        print("===================== SETTINGS =====================")
+        clear()
+        print_banner()
+        print()
         print("Which setting would you like to change?")
         print("---------------------- CHARTS ----------------------")
         print(f"1. SYMBOL ({config.SYMBOL})")
@@ -19,7 +23,6 @@ def open_settings():
             f"13. TEXT COLORS GAIN / FALL ({config.TEXT_GAIN_COLOR}+$100{Fore.RESET} / {config.TEXT_FALL_COLOR}-$100{Fore.RESET})")
         print("----------------------- BACK -----------------------")
         print("99. Back")
-        print("=================== SETTINGS END ===================")
 
         setting = input("[num] > ")
 

@@ -6,12 +6,15 @@ import sys
 from lib.util.config import config
 from lib.menus.settings import open_settings
 from lib.util.clear import clear
+from lib.util.banner import print_banner
 
 
 async def main_menu():
-    clear()
     config.current_mode = "menu"
     while True:
+        clear()
+        print_banner()
+        print()
         print("Select mode:")
         print("1. Chart mode")
         print("2. Order Book mode")
