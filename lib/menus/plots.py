@@ -164,7 +164,8 @@ async def show_plot(candle_data: CandleData, open_time):
 
     except KeyboardInterrupt:
         print("\nExiting...")
-        plt.close(fig)
         return
     except Exception as e:
         print(f"Error: {e}")
+    finally:
+        plt.close(fig)
