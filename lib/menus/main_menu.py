@@ -18,6 +18,7 @@ async def main_menu():
         print("98. Settings")
         print("99. Exit")
         mode = input("Select mode: ")
+        mode = mode.strip()
 
         if mode == "1":
             print("Switching to chart mode!")
