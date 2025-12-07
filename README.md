@@ -28,12 +28,13 @@ Install the dependencies using venv and pip:
 python3 -m venv tui
 source tui/bin/activate
 pip install -r requirements.txt
+cd src
 ```
 
 Run the TUI:
 
 ```bash
-python3 main-kitty.py
+python3 -m trade_tui
 ```
 
 Happy trading!
