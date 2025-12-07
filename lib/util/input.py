@@ -2,23 +2,36 @@ import blessed
 import asyncio
 from lib.util.config import config
 
-original_message = "Q -> Main Menu"
-current_message = original_message
+
+_original_message = "Q -> Main Menu"
+_current_message = _original_message
 
 
 async def input_handler():
-    global current_mode, INTERVAL, current_message
-    current_message = original_message
+    global _current_message
+    _current_message = _original_message
     with config.terminal.cbreak():
         while config.current_mode in ("chart", "symbol", "interval", "orderbook"):
+            clear_eol = getattr(config.terminal, 'clear_eol', '')
             if config.terminal.kbhit(timeout=0.1):
                 key = config.terminal.inkey(timeout=0)
 
                 if key == 'q':
-                    current_message = ("Quitting...")
-                    print(current_message)
+                    _current_message = "Quitting..."
+                    print(f"{_current_message}{clear_eol}",
+                          end="\r", flush=True)
                     config.current_mode = "menu"
                     return
-            clear_eol = getattr(config.terminal, 'clear_eol', '')
-            print(f"{current_message}{clear_eol}", end="\r")
+            print(f"{_current_message}{clear_eol}",
+                  end="\r", flush=True)
             await asyncio.sleep(0.05)
+
+
+def set_current_message(message: str):
+    global _current_message
+    _current_message = message
+
+
+def reset_current_message():
+    global _current_message
+    _current_message = _original_message

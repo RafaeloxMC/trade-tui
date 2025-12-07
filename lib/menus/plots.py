@@ -9,6 +9,7 @@ from matplotlib.ticker import FuncFormatter
 from lib.util.config import config
 from lib.util.types import CandleData
 from lib.util.backfill import fetch_historical_candles
+from lib.util.input import set_current_message
 import os
 
 TERM = os.environ.get('TERM', '')
@@ -46,8 +47,8 @@ async def connect_and_plot():
         await show_plot(config.candles[-1], open_time=config.candles[-1]['time'].timestamp() * 1000)
 
     async with websockets.connect(WS_URL) as ws:
-        print(
-            f"Connected to Binance WebSocket for {config.SYMBOL.upper()} @ {config.INTERVAL}: " + WS_URL)
+        set_current_message(
+            f"Q -> Main Menu | Connected to Binance WebSocket for {config.SYMBOL.upper()} @ {config.INTERVAL}: {WS_URL}")
 
         while (not config.refresh_plot) and config.current_mode == "chart":
             try:

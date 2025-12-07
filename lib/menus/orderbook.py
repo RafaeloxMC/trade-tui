@@ -5,7 +5,7 @@ import websockets
 from collections import OrderedDict
 from typing import Optional
 from lib.util.config import config
-from lib.util.input import current_message
+from lib.util.input import _current_message
 from colorama import Fore
 
 # https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#how-to-manage-a-local-order-book-correctly
@@ -283,7 +283,7 @@ async def display_orderbook():
                     ask_cell = " " * COL_WIDTH
 
                 print(f"{bid_cell}|{ask_cell}")
-            print(current_message, end="\r")
+            print(_current_message, end="\r")
         else:
             print("Syncing order book...", end="\r")
 
