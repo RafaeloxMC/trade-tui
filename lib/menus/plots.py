@@ -10,6 +10,8 @@ from lib.util.config import config
 from lib.util.types import CandleData
 from lib.util.backfill import fetch_historical_candles
 from lib.util.input import set_current_message
+from lib.util.indicators import calculate_rsi
+from colorama import Fore
 import os
 
 TERM = os.environ.get('TERM', '')
@@ -48,7 +50,7 @@ async def connect_and_plot():
 
     async with websockets.connect(WS_URL) as ws:
         set_current_message(
-            f"Q -> Main Menu | Connected to Binance WebSocket for {config.SYMBOL.upper()} @ {config.INTERVAL}: {WS_URL}")
+            f"Q -> Main Menu | {config.TEXT_GAIN_COLOR}Connected{Fore.RESET} | {config.SYMBOL.upper()} @ {config.INTERVAL} | {WS_URL}")
 
         while (not config.refresh_plot) and config.current_mode == "chart":
             try:
@@ -67,6 +69,18 @@ async def connect_and_plot():
                     'is_closed': kline['x']
                 }
                 await show_plot(candle_data=candle_data, open_time=open_time)
+
+                rsi = calculate_rsi(config.candles, 14)
+                rsi_string = ""
+                if rsi >= 80:
+                    rsi_string = config.TEXT_FALL_COLOR
+                elif rsi <= 20:
+                    rsi_string = config.TEXT_GAIN_COLOR
+                else:
+                    rsi_string = Fore.RESET
+                rsi_string += str(int(rsi * 100) / 100.0) + Fore.RESET
+                set_current_message(
+                    f"Q -> Main Menu | RSI -> {rsi_string} | {config.TEXT_GAIN_COLOR}Connected{Fore.RESET} | {config.SYMBOL.upper()} @ {config.INTERVAL} | {WS_URL}")
 
             except asyncio.TimeoutError:
                 continue
