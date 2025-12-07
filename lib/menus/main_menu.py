@@ -1,12 +1,12 @@
 import asyncio
-from lib.menus.plots import connect_and_plot
-from lib.menus.orderbook import connect_orderbook, display_orderbook
-from lib.util.input import input_handler
+from ..menus.plots import connect_and_plot
+from ..menus.orderbook import connect_orderbook, display_orderbook
+from ..util.input import input_handler
 import sys
-from lib.util.config import config
-from lib.menus.settings import open_settings
-from lib.util.clear import clear
-from lib.util.banner import print_banner
+from ..util.config import config
+from ..menus.settings import open_settings
+from ..util.clear import clear
+from ..util.banner import print_banner
 
 
 async def main_menu():

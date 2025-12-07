@@ -4,8 +4,8 @@ import aiohttp
 import websockets
 from collections import OrderedDict
 from typing import Optional
-from lib.util.config import config
-from lib.util.input import _current_message
+from ..util.config import config
+from ..util.input import _current_message
 from colorama import Fore
 
 # https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#how-to-manage-a-local-order-book-correctly

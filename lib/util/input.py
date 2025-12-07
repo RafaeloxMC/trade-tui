@@ -1,7 +1,7 @@
 import asyncio
 import re
 import blessed
-from lib.util.config import config
+from .config import config
 
 
 _original_message = "Q -> Main Menu"

@@ -1,6 +1,6 @@
 import aiohttp
-from lib.util.config import config
-from lib.util.types import CandleData
+from .config import config
+from .types import CandleData
 from datetime import datetime
 
 

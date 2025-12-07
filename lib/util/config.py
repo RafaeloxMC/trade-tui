@@ -2,7 +2,7 @@ from collections import deque
 import blessed
 from colorama import Fore
 from typing import Optional
-from lib.util.types import CandleData
+from .types import CandleData
 import json
 import os
 

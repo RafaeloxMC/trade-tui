@@ -1,8 +1,8 @@
-from lib.util.config import config
-from lib.util.hex import validate_hex
-from lib.util.colors import fore_from_name
-from lib.util.clear import clear
-from lib.util.banner import print_banner
+from ..util.config import config
+from ..util.hex import validate_hex
+from ..util.colors import fore_from_name
+from ..util.clear import clear
+from ..util.banner import print_banner
 from colorama import Fore
 import threading
 import os

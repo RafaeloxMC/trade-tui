@@ -4,13 +4,13 @@ import websockets
 import json
 import matplotlib.pyplot as plt
 import matplotlib
-from lib.util.ui import draw_candlesticks, display_in_kitty
+from ..util.ui import draw_candlesticks, display_in_kitty
 from matplotlib.ticker import FuncFormatter
-from lib.util.config import config
-from lib.util.types import CandleData
-from lib.util.backfill import fetch_historical_candles
-from lib.util.input import set_current_message
-from lib.util.indicators import calculate_rsi, calculate_ema
+from ..util.config import config
+from ..util.types import CandleData
+from ..util.backfill import fetch_historical_candles
+from ..util.input import set_current_message
+from ..util.indicators import calculate_rsi, calculate_ema
 from colorama import Fore
 import os
 
