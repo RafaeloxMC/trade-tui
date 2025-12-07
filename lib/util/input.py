@@ -1,5 +1,6 @@
 import asyncio
 import re
+import blessed
 from lib.util.config import config
 
 
@@ -41,7 +42,7 @@ async def input_handler():
     _current_message = _original_message
     with config.terminal.cbreak():
         while config.current_mode in ("chart", "symbol", "interval", "orderbook"):
-            clear_eol = getattr(config.terminal, 'clear_eol', '')
+            clear_eol = blessed.Terminal().clear_eol
             term_width = config.terminal.width or 80
             if config.terminal.kbhit(timeout=0.1):
                 key = config.terminal.inkey(timeout=0)
