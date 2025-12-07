@@ -8,6 +8,7 @@ from lib.util.ui import draw_candlesticks, display_in_kitty
 from matplotlib.ticker import FuncFormatter
 from lib.util.config import config
 from lib.util.types import CandleData
+from lib.util.backfill import fetch_historical_candles
 import os
 
 TERM = os.environ.get('TERM', '')
@@ -24,13 +25,25 @@ update_count = 0
 
 
 async def connect_and_plot():
-    global update_count
-
-    fig, ax = plt.subplots(figsize=(config.CHART_WIDTH, config.CHART_HEIGHT))
-    fig.set_facecolor(config.CHART_BG)
-    ax.set_facecolor(config.CHART_FG)
-
     WS_URL = f"wss://stream.binance.com:9443/ws/{config.SYMBOL}@kline_{config.INTERVAL}"
+
+    data = await fetch_historical_candles()
+    for kline in data:
+        open_time = kline[0]
+        candle: CandleData = {
+            'time': datetime.fromtimestamp(open_time / 1000),
+            'open': float(kline[1]),
+            'high': float(kline[2]),
+            'low': float(kline[3]),
+            'close': float(kline[4]),
+            'volume': float(kline[5]),
+            'is_closed': True
+        }
+        config.candles.append(candle)
+        config.candle_dict[open_time] = len(config.candles) - 1
+
+    if config.candles is not None and len(config.candles) > 0 and config.candles[-1] is not None:
+        await show_plot(config.candles[-1], open_time=config.candles[-1]['time'].timestamp() * 1000)
 
     async with websockets.connect(WS_URL) as ws:
         print(
@@ -52,75 +65,7 @@ async def connect_and_plot():
                     'volume': float(kline['v']),
                     'is_closed': kline['x']
                 }
-
-                if open_time in config.candle_dict:
-                    idx = config.candle_dict[open_time]
-                    config.candles[idx] = candle_data
-                else:
-                    config.candles.append(candle_data)
-                    config.candle_dict[open_time] = len(config.candles) - 1
-
-                    if len(config.candles) > config.MAX_CANDLES:
-                        config.candles = config.candles[-config.MAX_CANDLES:]
-                        config.candle_dict = {
-                            k: i for i, (k, _) in enumerate(
-                                sorted(config.candle_dict.items()
-                                       )[-config.MAX_CANDLES:]
-                            )
-                        }
-
-                update_count += 1
-
-                if len(config.candles) >= 2 and update_count >= config.UPDATE_EVERY:
-                    update_count = 0
-
-                    ax.clear()
-                    ax.set_facecolor(config.CHART_FG)
-
-                    candles_list = [c for c in config.candles if c is not None]
-                    draw_candlesticks(
-                        ax, candles_list, offset=config.MAX_CANDLES - len(candles_list))
-
-                    current_price = candles_list[-1]['close']
-                    price_change = current_price - candles_list[-1]['open']
-                    change_pct = (
-                        price_change / candles_list[-1]['open']) * 100
-                    change_symbol = '+' if price_change >= 0 else ''
-
-                    ax.set_title(
-                        f'{config.SYMBOL.upper()} ({config.INTERVAL}) - ${current_price:,.2f} '
-                        f'({change_symbol}{price_change:,.2f} / {change_symbol}{change_pct:.2f}%)',
-                        fontsize=14, color='white'
-                    )
-                    ax.set_xlabel('Candles', color='white')
-                    ax.set_ylabel('Price (USD)', color='white')
-
-                    ax.set_xlim(-1, config.MAX_CANDLES)
-
-                    all_highs = [c['high'] for c in candles_list]
-                    all_lows = [c['low'] for c in candles_list]
-                    min_price = min(all_lows)
-                    max_price = max(all_highs)
-                    price_range = max_price - min_price
-                    padding = max(price_range * 0.1, 10)
-                    ax.set_ylim(min_price - padding, max_price + padding)
-
-                    ax.yaxis.set_major_formatter(
-                        FuncFormatter(lambda x, p: f'${x:,.0f}'))
-
-                    ax.tick_params(colors='white')
-                    ax.spines['bottom'].set_color('white')
-                    ax.spines['top'].set_color('white')
-                    ax.spines['left'].set_color('white')
-                    ax.spines['right'].set_color('white')
-                    ax.grid(True, alpha=0.3, color='gray')
-
-                    fig.canvas.draw()
-                    fig.tight_layout()
-                    if IS_KITTY:
-                        display_in_kitty(fig)
-                    else:
-                        plt.show()
+                await show_plot(candle_data=candle_data, open_time=open_time)
 
             except asyncio.TimeoutError:
                 continue
@@ -129,13 +74,97 @@ async def connect_and_plot():
                 break
             except KeyboardInterrupt:
                 print("\nExiting...")
-                plt.close(fig)
+                plt.close()
                 return
             except Exception as e:
                 print(f"Error: {e}")
                 continue
 
-    plt.close(fig)
+    plt.close()
     if config.refresh_plot:
         config.refresh_plot = False
         await connect_and_plot()
+
+
+async def show_plot(candle_data: CandleData, open_time):
+    global update_count
+    fig, ax = plt.subplots(figsize=(config.CHART_WIDTH, config.CHART_HEIGHT))
+    fig.set_facecolor(config.CHART_BG)
+    ax.set_facecolor(config.CHART_FG)
+
+    try:
+        if open_time in config.candle_dict:
+            idx = config.candle_dict[open_time]
+            config.candles[idx] = candle_data
+        else:
+            config.candles.append(candle_data)
+            config.candle_dict[open_time] = len(config.candles) - 1
+
+            if len(config.candles) > config.MAX_CANDLES:
+                config.candles = config.candles[-config.MAX_CANDLES:]
+                config.candle_dict = {
+                    k: i for i, (k, _) in enumerate(
+                        sorted(config.candle_dict.items()
+                               )[-config.MAX_CANDLES:]
+                    )
+                }
+
+        update_count += 1
+
+        if len(config.candles) >= 2 and update_count >= config.UPDATE_EVERY:
+            update_count = 0
+
+            ax.clear()
+            ax.set_facecolor(config.CHART_FG)
+
+            candles_list = [c for c in config.candles if c is not None]
+            draw_candlesticks(
+                ax, candles_list, offset=config.MAX_CANDLES - len(candles_list))
+
+            current_price = candles_list[-1]['close']
+            price_change = current_price - candles_list[-1]['open']
+            change_pct = (
+                price_change / candles_list[-1]['open']) * 100
+            change_symbol = '+' if price_change >= 0 else ''
+
+            ax.set_title(
+                f'{config.SYMBOL.upper()} ({config.INTERVAL}) - ${current_price:,.2f} '
+                f'({change_symbol}{price_change:,.2f} / {change_symbol}{change_pct:.2f}%)',
+                fontsize=14, color='white'
+            )
+            ax.set_xlabel('Candles', color='white')
+            ax.set_ylabel('Price (USD)', color='white')
+
+            ax.set_xlim(-1, config.MAX_CANDLES)
+
+            all_highs = [c['high'] for c in candles_list]
+            all_lows = [c['low'] for c in candles_list]
+            min_price = min(all_lows)
+            max_price = max(all_highs)
+            price_range = max_price - min_price
+            padding = max(price_range * 0.1, 10)
+            ax.set_ylim(min_price - padding, max_price + padding)
+
+            ax.yaxis.set_major_formatter(
+                FuncFormatter(lambda x, p: f'${x:,.0f}'))
+
+            ax.tick_params(colors='white')
+            ax.spines['bottom'].set_color('white')
+            ax.spines['top'].set_color('white')
+            ax.spines['left'].set_color('white')
+            ax.spines['right'].set_color('white')
+            ax.grid(True, alpha=0.3, color='gray')
+
+            fig.canvas.draw()
+            fig.tight_layout()
+            if IS_KITTY:
+                display_in_kitty(fig)
+            else:
+                plt.show()
+
+    except KeyboardInterrupt:
+        print("\nExiting...")
+        plt.close(fig)
+        return
+    except Exception as e:
+        print(f"Error: {e}")
